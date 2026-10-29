@@ -1,0 +1,109 @@
+
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      Fact table containing eligible e-commerce
+      orders, one row per order_id.
+
+    columns:
+      - name: order_id
+        description: "Unique order identifier."
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('int_orders_eligible')
+                field: order_id
+
+      - name: order_date_vn
+        description: "Order date in Vietnam timezone."
+        data_tests:
+          - not_null
+
+      - name: status
+        description: "Eligible order status."
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - paid
+                  - shipped
+                  - delivered
+
+      - name: total_amount
+        description: "Order amount from the source orders table."
+        data_tests:
+          - not_null
+
+      - name: has_order_items
+        description: "Whether matching order items exist."
+        data_tests:
+          - not_null
+
+
+
+  - name: fct_order_items
+    description: "Order item fact for eligible orders."
+
+    columns:
+      - name: order_item_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+
+      - name: line_amount
+        data_tests:
+          - not_null
+
+
+
+  - name: mart_city_day
+    description: >
+      Daily city-level sales and weather mart.
+      One row per normalized city and report date.
+
+    columns:
+      - name: city_key
+        description: "Normalized city identifier."
+        data_tests:
+          - not_null
+
+      - name: report_date
+        description: "Reporting date in Vietnam timezone."
+        data_tests:
+          - not_null
+
+      - name: order_count
+        description: "Number of eligible orders."
+        data_tests:
+          - not_null
+
+      - name: total_order_amount
+        description: "Total eligible order amount."
+        data_tests:
+          - not_null
+
+      - name: has_weather
+        data_tests:
+          - not_null
+
+      - name: weather_condition
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - rainy
+                  - dry
+                  - unknown

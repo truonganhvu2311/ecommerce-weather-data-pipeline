@@ -1,0 +1,65 @@
+
+version: 2
+
+models:
+  - name: int_orders_eligible
+    description: "Orders eligible for sales KPIs."
+
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_date_vn
+        data_tests:
+          - not_null
+
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - paid
+                  - shipped
+                  - delivered
+
+  - name: int_order_items_by_order
+    description: "Aggregated order items at order grain."
+
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: item_count
+        data_tests:
+          - not_null
+
+      - name: total_items_amount
+        data_tests:
+          - not_null
+
+
+  - name: int_orders_weather
+    description: "Eligible orders enriched with daily weather."
+
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('fct_orders')
+                field: order_id
+
+      - name: weather_condition
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - rainy
+                  - dry
+                  - unknown
