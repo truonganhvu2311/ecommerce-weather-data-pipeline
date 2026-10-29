@@ -1,0 +1,36 @@
+# ==================================
+# Python virtual environments
+# ==================================
+.venv/
+.venv_dbt/
+.venv_dbt_stable/
+
+# Python generated files
+__pycache__/
+*.pyc
+
+# ==================================
+# Environment variables & secrets
+# ==================================
+.env
+.env.*
+!.env.example
+
+# ==================================
+# Local data and pipeline state
+# ==================================
+# Local data and generated reports
+data/
+state/
+
+# ==================================
+# dbt generated files
+# ==================================
+ecommerce_weather_dbt/target/
+ecommerce_weather_dbt/logs/
+ecommerce_weather_dbt/dbt_packages/
+
+# ==================================
+# Logs
+# ==================================
+*.log

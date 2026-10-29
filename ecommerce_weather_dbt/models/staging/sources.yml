@@ -1,0 +1,49 @@
+
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data loaded from Hugging Face into PostgreSQL Analytics"
+    database: ecommerce_analytics_dev
+    schema: raw
+
+    tables:
+      - name: customers
+        description: "Raw customer extraction events"
+        columns:
+          - name: raw_event_id
+            description: "Unique identifier for each raw extraction event"
+            data_tests:
+              - not_null
+              - unique
+
+      - name: products
+        description: "Raw product extraction events"
+        columns:
+          - name: raw_event_id
+            data_tests:
+              - not_null
+              - unique
+
+      - name: orders
+        description: "Raw order extraction events, including historical updates"
+        columns:
+          - name: raw_event_id
+            data_tests:
+              - not_null
+              - unique
+
+      - name: order_items
+        description: "Raw order-item extraction events"
+        columns:
+          - name: raw_event_id
+            data_tests:
+              - not_null
+              - unique
+
+      - name: weather_api_responses
+        description: "Original weather API responses stored as JSONB"
+        columns:
+          - name: payload
+            data_tests:
+              - not_null
