@@ -34,3 +34,28 @@ ecommerce_weather_dbt/dbt_packages/
 # Logs
 # ==================================
 *.log
+
+# Local dbt profiles and credentials
+.dbt_bigquery/
+.dbt/
+**/profiles.yml
+
+# Python virtual environments
+.venv*/
+
+# dbt generated artifacts
+**/target/
+**/logs/
+**/dbt_packages/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.pyc
+
+ecommerce_weather_dbt_bigquery/models/example/
+ecommerce_weather_dbt_bigquery/staging_backup_before_bigquery/

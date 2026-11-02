@@ -1,0 +1,132 @@
+
+version: 2
+
+models:
+  - name: stg_customers
+    description: "Current-state customer records deduplicated from raw extraction events"
+
+    columns:
+      - name: customer_id
+        description: "Unique business identifier of each customer"
+        data_tests:
+          - not_null
+          - unique
+
+      - name: source_raw_event_id
+        description: "Raw event selected as the current customer version"
+        data_tests:
+          - not_null
+
+
+  - name: stg_products
+    description: "Current-state product records deduplicated from raw extraction events"
+
+    columns:
+      - name: product_id
+        description: "Unique business identifier of each product"
+        data_tests:
+          - not_null
+          - unique
+
+      - name: product_name
+        description: "Name of the product"
+        data_tests:
+          - not_null
+
+      - name: category
+        description: "Product category"
+        data_tests:
+          - not_null
+
+      - name: price
+        description: "Current product price"
+        data_tests:
+          - not_null
+
+
+
+  - name: stg_orders
+    description: "Current-state order records, including soft-deleted orders"
+
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: customer_id
+        data_tests:
+          - not_null
+
+      - name: order_date
+        data_tests:
+          - not_null
+
+      - name: status
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - pending
+                  - paid
+                  - shipped
+                  - delivered
+                  - cancelled
+
+      - name: city
+        data_tests:
+          - not_null
+
+      - name: total_amount
+        data_tests:
+          - not_null
+
+      - name: is_deleted
+        data_tests:
+          - not_null
+
+
+
+  - name: stg_order_items
+    description: "Current-state order item records deduplicated from raw extraction events"
+
+    columns:
+      - name: order_item_id
+        data_tests:
+          - not_null
+          - unique
+
+      - name: order_id
+        data_tests:
+          - not_null
+
+      - name: product_id
+        data_tests:
+          - not_null
+
+      - name: quantity
+        data_tests:
+          - not_null
+
+      - name: unit_price
+        data_tests:
+          - not_null
+
+
+
+  - name: stg_weather_daily
+    description: "Daily weather data expanded from Open-Meteo JSONB responses"
+
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+
+      - name: weather_date
+        data_tests:
+          - not_null
+
+      - name: source_raw_event_id
+        data_tests:
+          - not_null
