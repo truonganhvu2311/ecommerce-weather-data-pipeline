@@ -12,7 +12,7 @@
 -- 1. Raw customers (each JSONL line is a historical extraction event)
 CREATE TABLE IF NOT EXISTS `weather-data-project-512207.de_raw.customers` (
   raw_event_id STRING DEFAULT (GENERATE_UUID()),
-  customer_id INT64,
+  customer_id STRING,
   customer_name STRING,
   city STRING,
   created_at TIMESTAMP,
@@ -34,7 +34,7 @@ OPTIONS(description='Immutable-like raw customer extract events loaded from GCS 
 -- 2. Raw products
 CREATE TABLE IF NOT EXISTS `weather-data-project-512207.de_raw.products` (
   raw_event_id STRING DEFAULT (GENERATE_UUID()),
-  product_id INT64,
+  product_id STRING,
   product_name STRING,
   category STRING,
   price NUMERIC,
@@ -57,8 +57,8 @@ OPTIONS(description='Raw product extract events, retaining source and extraction
 -- 3. Raw orders: preserve soft deletes and multiple extracted versions per order
 CREATE TABLE IF NOT EXISTS `weather-data-project-512207.de_raw.orders` (
   raw_event_id STRING DEFAULT (GENERATE_UUID()),
-  order_id INT64,
-  customer_id INT64,
+  order_id STRING,
+  customer_id STRING,
   order_date TIMESTAMP,
   status STRING,
   city STRING,
@@ -83,9 +83,9 @@ OPTIONS(description='Raw order events, including status changes and is_deleted f
 -- 4. Raw order_items
 CREATE TABLE IF NOT EXISTS `weather-data-project-512207.de_raw.order_items` (
   raw_event_id STRING DEFAULT (GENERATE_UUID()),
-  order_item_id INT64,
-  order_id INT64,
-  product_id INT64,
+  order_item_id STRING,
+  order_id STRING,
+  product_id STRING,
   quantity INT64,
   unit_price NUMERIC,
   created_at TIMESTAMP,

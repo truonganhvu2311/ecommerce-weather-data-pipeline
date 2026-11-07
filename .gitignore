@@ -59,3 +59,7 @@ __pycache__/
 
 ecommerce_weather_dbt_bigquery/models/example/
 ecommerce_weather_dbt_bigquery/staging_backup_before_bigquery/
+
+# Airflow local runtime batches
+data/airflow_batches/
+state/airflow/
