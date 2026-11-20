@@ -1,0 +1,17 @@
+# Prerequisite: build Dockerfile.gcp as local/airflow-gcp:3.3.2.
+# Keep dbt in a separate virtual environment from the Airflow interpreter.
+FROM local/airflow-gcp:3.3.2
+
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m venv /opt/dbt-venv \
+    && chown -R airflow:root /opt/dbt-venv \
+    && mkdir -p /opt/airflow/de_project/profiles \
+    && chown -R airflow:root /opt/airflow/de_project
+
+USER airflow
+RUN /opt/dbt-venv/bin/python -m pip install --no-cache-dir \
+    "dbt-core==1.12.6" \
+    "dbt-bigquery==1.12.1"

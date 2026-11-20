@@ -1,0 +1,112 @@
+digraph EcommerceWeather {
+  graph [
+    rankdir=LR,
+    bgcolor="#FFFFFF",
+    pad="0.45",
+    nodesep="0.55",
+    ranksep="0.85",
+    splines=polyline,
+    compound=true,
+    fontname="DejaVu Sans",
+    label="E-COMMERCE SALES + WEATHER ANALYTICS  |  END-TO-END ARCHITECTURE\nData flow (solid arrows)  |  Manual Airflow trigger  |  QA-gated watermark updates",
+    labelloc=t,
+    labeljust=l,
+    fontsize=19,
+    fontcolor="#16324F"
+  ];
+
+  node [
+    shape=box,
+    style="rounded,filled",
+    color="#CBD5E1",
+    penwidth=1.2,
+    fontname="DejaVu Sans",
+    fontsize=12,
+    fontcolor="#102A43",
+    margin="0.25,0.19"
+  ];
+  edge [
+    color="#58748A",
+    arrowsize=0.78,
+    penwidth=1.65,
+    fontname="DejaVu Sans",
+    fontsize=10,
+    fontcolor="#41566B"
+  ];
+
+  subgraph cluster_sources {
+    label="01  DATA SOURCES";
+    labelloc=t;
+    fontsize=12;
+    fontname="DejaVu Sans";
+    fontcolor="#334155";
+    style="rounded,filled";
+    color="#D4E4F4";
+    fillcolor="#F2F8FE";
+    pg [label="PostgreSQL OLTP\ncustomers | products\norders | order_items", fillcolor="#DCEBFA", color="#86B5E1"];
+    weather [label="Open-Meteo\nHistorical Weather API", fillcolor="#DCEBFA", color="#86B5E1"];
+  }
+
+  subgraph cluster_ingestion {
+    label="02  INGESTION";
+    labelloc=t;
+    fontsize=12;
+    fontname="DejaVu Sans";
+    fontcolor="#334155";
+    style="rounded,filled";
+    color="#DAD5F0";
+    fillcolor="#F7F5FF";
+    txn [label="Airflow 3.3.2 manual DAG\nPython incremental extract\nupdated_at + soft deletes\nJSONL + SHA-256 manifest", fillcolor="#E7DEFA", color="#B7A2E3"];
+    wx [label="Separate weather ingestion\nhistorical city + date", fillcolor="#E7DEFA", color="#B7A2E3"];
+  }
+
+  subgraph cluster_raw {
+    label="03  RAW & WAREHOUSE";
+    labelloc=t;
+    fontsize=12;
+    fontname="DejaVu Sans";
+    fontcolor="#334155";
+    style="rounded,filled";
+    color="#F5D5AD";
+    fillcolor="#FFFAF2";
+    gcs [label="GCS RAW\nimmutable objects / manifests", fillcolor="#FFF0CF", color="#E8B96B"];
+    bq [label="BigQuery de_raw\n5 RAW tables", fillcolor="#FFF0CF", color="#E8B96B"];
+  }
+
+  subgraph cluster_analytics {
+    label="04  TRANSFORM & REPORT";
+    labelloc=t;
+    fontsize=12;
+    fontname="DejaVu Sans";
+    fontcolor="#334155";
+    style="rounded,filled";
+    color="#B6E3D7";
+    fillcolor="#F2FFFB";
+    dbt [label="dbt BigQuery\nStaging (5) -> Intermediate (3)\n-> Marts (3) | 76 data tests", fillcolor="#D8F5EA", color="#73C7AB"];
+    looker [label="Looker Studio\nSales Overview\nCity & Weather\nProducts & Items", fillcolor="#D9F7E8", color="#71C3A0"];
+  }
+
+  pg -> txn;
+  weather -> wx;
+  txn -> gcs;
+  wx -> gcs;
+  gcs -> bq;
+  bq -> dbt;
+  dbt -> looker [label="de_marts"];
+
+  subgraph cluster_quality {
+    label="05  QUALITY & COMMITTED STATE";
+    labelloc=t;
+    fontsize=12;
+    fontname="DejaVu Sans";
+    fontcolor="#334155";
+    style="rounded,filled";
+    color="#F1DCA9";
+    fillcolor="#FFFDF5";
+    qa [label="dbt / Airflow QA gate\n11 models + 76 tests\n87/87 PASS in demo", fillcolor="#FEF3C7", color="#E4AE3F"];
+    state [label="BigQuery de_etl\nloaded_files | pipeline_batches\ncommitted watermarks", fillcolor="#E0F2FE", color="#7AA9D6"];
+  }
+
+  dbt -> qa [color="#CA8B21", label="verify results"];
+  qa -> state [color="#CA8B21", label="PASS only"];
+}

@@ -1,0 +1,47 @@
+# Sample override only. Pair with an existing Airflow 3.3.2 docker-compose.yaml.
+# This file intentionally does not include credentials or machine-specific paths.
+services:
+  airflow-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.gcp.dbt
+    image: local/airflow-gcp-dbt:3.3.2
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/airflow/secrets/gcp_adc.json
+      AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT: "google-cloud-platform://?project=${GOOGLE_CLOUD_PROJECT:?Set GOOGLE_CLOUD_PROJECT in .env}"
+      DBT_ENGINE_PROFILES_DIR: /opt/airflow/de_project/profiles
+      # Use /opt/dbt-venv/bin/dbt explicitly in Airflow task subprocesses.
+    volumes:
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/src
+        target: /opt/airflow/de_project/src
+        read_only: true
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/ecommerce_weather_dbt_bigquery
+        target: /opt/airflow/de_project/dbt
+        read_only: true
+      - type: bind
+        source: ${GCP_ADC_PATH:?Set GCP_ADC_PATH in .env}
+        target: /opt/airflow/secrets/gcp_adc.json
+        read_only: true
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/.dbt_bigquery/profiles.yml
+        target: /opt/airflow/de_project/profiles/profiles.yml
+        read_only: true
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/data/airflow_batches
+        target: /opt/airflow/de_project/airflow_batches
+        read_only: true
+      # Existing Day 8 compatibility checkpoint; not the authoritative BigQuery watermark.
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/state/airflow/committed_watermarks_verified.json
+        target: /opt/airflow/de_project/committed_watermarks_verified.json
+        read_only: true
+      - type: bind
+        source: ${AIRFLOW_PROJ_DIR:?Set AIRFLOW_PROJ_DIR in .env}/runtime/airflow_batches_auto
+        target: /opt/airflow/de_project/data/airflow_batches
+        read_only: false
+      - type: bind
+        source: ${AIRFLOW_PROJ_DIR:?Set AIRFLOW_PROJ_DIR in .env}/runtime/airflow_batches_auto
+        target: /opt/airflow/de_project/airflow_batches_auto
+        read_only: false

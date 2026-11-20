@@ -1,0 +1,36 @@
+# Optional dbt CLI service. Run with: docker compose -f compose.dbt.example.yaml --profile manual ...
+name: de-dbt-day8
+
+services:
+  dbt:
+    build:
+      context: .
+      dockerfile: Dockerfile.dbt
+    image: local/de-dbt-bigquery:1.12.1
+    profiles: [manual]
+    working_dir: /work/project
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /work/secrets/adc.json
+      GOOGLE_CLOUD_PROJECT: ${GOOGLE_CLOUD_PROJECT:?Set GOOGLE_CLOUD_PROJECT in .env}
+      DBT_ENGINE_PROFILES_DIR: /work/profiles
+      DBT_ENGINE_TARGET_PATH: /work/runtime/target
+      DBT_ENGINE_LOG_PATH: /work/runtime/logs
+    volumes:
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/ecommerce_weather_dbt_bigquery
+        target: /work/project
+        read_only: true
+      - type: bind
+        source: ${DE_REPO_DIR:?Set DE_REPO_DIR in .env}/.dbt_bigquery/profiles.yml
+        target: /work/profiles/profiles.yml
+        read_only: true
+      - type: bind
+        source: ${GCP_ADC_PATH:?Set GCP_ADC_PATH in .env}
+        target: /work/secrets/adc.json
+        read_only: true
+      - type: volume
+        source: dbt_runtime
+        target: /work/runtime
+
+volumes:
+  dbt_runtime:
